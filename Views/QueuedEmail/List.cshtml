@@ -8,6 +8,7 @@
 }
 @using (Html.BeginForm())
 {
+    @Html.AntiForgeryToken()
     <div class="section-header">
         <div class="title">
             <img src="@Url.Content("~/Administration/Content/images/ico-system.png")" alt="" />
@@ -78,7 +79,7 @@
         </tr>
         <tr>
             <td colspan="2">
-                <input type="button" id="btnSearch" class="k-button" value="@T("Admin.Common.Search")" />
+                <input type="button" id="search-queuedemails" class="k-button" value="@T("Admin.Common.Search")" />
             </td>
         </tr>
     </table>
@@ -157,7 +158,7 @@
                                 type: "date",
                                 format: "{0:G}"
                             }, {
-                                field: "Priority",
+                                field: "PriorityName",
                                 title: "@T("Admin.System.QueuedEmails.Fields.Priority")",
                                 width: 100
                             }, {
@@ -175,7 +176,7 @@
                     $(document).ready(function () {
 
                         //search button
-                        $('#btnSearch').click(function () {
+                        $('#search-queuedemails').click(function () {
                             //search
                             var grid = $('#queuedEmails-grid').data('kendoGrid');
                             grid.dataSource.page(1); //new search. Set page size to 1
@@ -188,14 +189,14 @@
 
                         $("#@Html.FieldIdFor(model => model.SearchFromEmail)").keydown(function (event) {
                             if (event.keyCode == 13) {
-                                $("#btnSearch").click();
+                                $("#search-queuedemails").click();
                                 return false;
                             }
                         });
 
                         $("#@Html.FieldIdFor(model => model.SearchToEmail)").keydown(function (event) {
                             if (event.keyCode == 13) {
-                                $("#btnSearch").click();
+                                $("#search-queuedemails").click();
                                 return false;
                             }
                         });
@@ -207,6 +208,7 @@
                             var postData = {
                                 selectedIds: selectedIds
                             };
+                            addAntiForgeryToken(postData);
 
                             $.ajax({
                                 cache:false,
@@ -258,7 +260,7 @@
                     });
 
                     function additionalData() {
-                        return {
+                        var data = {
                             SearchStartDate: $('#@Html.FieldIdFor(model => model.SearchStartDate)').val(),
                             SearchEndDate: $('#@Html.FieldIdFor(model => model.SearchEndDate)').val(),
                             SearchFromEmail: $('#@Html.FieldIdFor(model => model.SearchFromEmail)').val(),
@@ -266,6 +268,8 @@
                             SearchLoadNotSent: $('#@Html.FieldIdFor(model => model.SearchLoadNotSent)').is(':checked'),
                             SearchMaxSentTries: $('#@Html.FieldIdFor(model => model.SearchMaxSentTries)').val()
                         };
+                        addAntiForgeryToken(data);
+                        return data;
                     }
 
                     function onDataBound(e) {
@@ -282,7 +286,7 @@
 
                     function updateMasterCheckbox() {
                         var numChkBoxes = $('#queuedEmails-grid input[type=checkbox][id!=mastercheckbox]').length;
-                        var numChkBoxesChecked = $('#queuedEmails-grid input[type=checkbox][checked][id!=mastercheckbox]').length;
+                        var numChkBoxesChecked = $('#queuedEmails-grid input[type=checkbox][id!=mastercheckbox]:checked').length;
                         $('#mastercheckbox').attr('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
                     }
                 </script>

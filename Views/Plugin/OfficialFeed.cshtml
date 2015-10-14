@@ -6,7 +6,7 @@
     //currently we support only 15 page size for this page
     var defaultGridPageSize = 15;
 }
-
+@Html.AntiForgeryToken()
 <div class="section-header">
     <div class="title">
         <img src="@Url.Content("~/Administration/Content/images/ico-configuration.png")" alt="" />
@@ -118,7 +118,7 @@
                                 field: "Url",
                                 width: 150,
                                 title: "@T("Admin.Configuration.Plugins.OfficialFeed.Download")",
-                                template: '<a href="#=Url#?utm_source=admin-panel&utm_medium=official-plugins&utm_campaign=admin-panel" class="plugin-download-link" target="_blank">@T("Admin.Configuration.Plugins.OfficialFeed.Download")<a/>',
+                                template: '<a href="#=Url#?utm_source=admin-panel&utm_medium=official-plugins&utm_campaign=admin-panel" class="plugin-download-link" target="_blank">@T("Admin.Configuration.Plugins.OfficialFeed.Download")</a>',
                                 headerAttributes: {style: "text-align:center" },
                                 attributes: { style: "text-align:center" }
                             },
@@ -174,12 +174,14 @@
                 });
 
                 function additionalData() {
-                    return {
+                    var data = {
                         SearchName: $('#@Html.FieldIdFor(model => model.SearchName)').val(),
                         SearchVersionId: $('#SearchVersionId').val(),
                         SearchCategoryId: $('#SearchCategoryId').val(),
                         SearchPriceId: $('#SearchPriceId').val()
                     };
+                    addAntiForgeryToken(data);
+                    return data;
                 }
 
             </script>

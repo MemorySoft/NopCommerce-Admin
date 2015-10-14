@@ -5,7 +5,8 @@
 
     //page title
     ViewBag.Title = T("Admin.Vendors").Text;
-}
+    }
+@Html.AntiForgeryToken()
 <div class="section-header">
     <div class="title">
         <img src="@Url.Content("~/Administration/Content/images/ico-customers.png")" alt="" />
@@ -26,7 +27,7 @@
     </tr>
     <tr>
         <td colspan="2">
-            <input type="button" id="btnSearch" class="k-button" value="@T("Admin.Common.Search")" />
+            <input type="button" id="search-vendors" class="k-button" value="@T("Admin.Common.Search")" />
         </td>
     </tr>
 </table>
@@ -99,7 +100,7 @@
             <script type="text/javascript">
                 $(document).ready(function () {
                     //search button
-                    $('#btnSearch').click(function () {
+                    $('#search-vendors').click(function () {
                         //search
                         var grid = $('#vendors-grid').data('kendoGrid');
                         grid.dataSource.page(1); //new search. Set page size to 1
@@ -109,16 +110,18 @@
 
                     $("#@Html.FieldIdFor(model => model.SearchName)").keydown(function (event) {
                         if (event.keyCode == 13) {
-                            $("#btnSearch").click();
+                            $("#search-vendors").click();
                             return false;
                         }
                     });
                 });
 
                 function additionalData() {
-                    return {
+                    var data = {
                         SearchName: $('#@Html.FieldIdFor(model => model.SearchName)').val()
                     };
+                    addAntiForgeryToken(data);
+                    return data;
                 }
             </script>
         </td>

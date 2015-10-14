@@ -1,22 +1,6 @@
 ﻿@model TopicModel
 @Html.ValidationSummary(false)
-
-<script type="text/javascript">
-    $(document).ready(function () {
-        $("#@Html.FieldIdFor(model => model.IsPasswordProtected)").click(togglePassword);
-        togglePassword();
-    });
-    function togglePassword() {
-        if ($('#@Html.FieldIdFor(model => model.IsPasswordProtected)').is(':checked')) {
-            $('#pnlPasswordEnabled').show();
-        }
-        else {
-            $('#pnlPasswordEnabled').hide();
-        }
-    }       
-</script>
 @Html.HiddenFor(model => model.Id)
-
 <div id="topic-edit">
     <ul>
         <li @Html.RenderSelectedTabIndex(0, GetSelectedTabIndex())>
@@ -66,7 +50,69 @@
 <input type="hidden" id="selected-tab-index" name="selected-tab-index" value="@(GetSelectedTabIndex())">
 
 @helper TabInfo()
-    { 
+    {
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#@Html.FieldIdFor(model => model.IsPasswordProtected)").click(togglePassword);
+            togglePassword();
+        });
+
+        function togglePassword() {
+            if ($('#@Html.FieldIdFor(model => model.IsPasswordProtected)').is(':checked')) {
+                $('#pnlPasswordEnabled').show();
+            } else {
+                $('#pnlPasswordEnabled').hide();
+            }
+        }
+    </script>
+    @(Html.LocalizedEditor<TopicModel, TopicLocalizedModel>("topic-info-localized",
+          @<table class="adminContent">
+               <tr>
+                   <td class="adminTitle">
+                       @Html.NopLabelFor(model => model.Locales[item].Title):
+                   </td>
+                   <td class="adminData">
+                       @Html.EditorFor(model => model.Locales[item].Title)
+                       @Html.ValidationMessageFor(model => model.Locales[item].Title)
+                   </td>
+               </tr>
+               <tr>
+                   <td class="adminTitle">
+                       @Html.NopLabelFor(model => model.Locales[item].Body):
+                   </td>
+                   <td class="adminData">
+                       @Html.EditorFor(model => model.Locales[item].Body, "RichEditor")
+                       @Html.ValidationMessageFor(model => model.Locales[item].Body)
+                   </td>
+               </tr>
+               <tr>
+                   <td colspan="2">
+                       @Html.HiddenFor(model => model.Locales[item].LanguageId)
+                   </td>
+               </tr>
+           </table>
+        ,
+          @<table class="adminContent">
+               <tr>
+                   <td class="adminTitle">
+                       @Html.NopLabelFor(model => model.Title):
+                   </td>
+                   <td class="adminData">
+                       @Html.EditorFor(model => model.Title)
+                       @Html.ValidationMessageFor(model => model.Title)
+                   </td>
+               </tr>
+               <tr>
+                   <td class="adminTitle">
+                       @Html.NopLabelFor(model => model.Body):
+                   </td>
+                   <td class="adminData">
+                       @Html.EditorFor(x => x.Body, "RichEditor")
+                       @Html.ValidationMessageFor(model => model.Body)
+                   </td>
+               </tr>
+           </table>
+          ))
     <table class="adminContent">
         <tr>
             <td class="adminTitle">
@@ -77,6 +123,17 @@
                 @Html.ValidationMessageFor(model => model.SystemName)
             </td>
         </tr>
+        @if (Model.Id > 0)
+        {
+            <tr>
+                <td class="adminTitle">
+                    @Html.NopLabelFor(model => model.Url):
+                </td>
+                <td class="adminData">
+                    <a href="@Model.Url">@Model.Url</a>
+                </td>
+            </tr>
+        }
         <tr>
             <td class="adminTitle">
                 @Html.NopLabelFor(model => model.IsPasswordProtected):
@@ -113,66 +170,61 @@
                 @Html.ValidationMessageFor(model => model.IncludeInTopMenu)
             </td>
         </tr>
-        @if (Model.Id > 0)
-        {
-            <tr>
-                <td class="adminTitle">
-                    @Html.NopLabelFor(model => model.Url):
-                </td>
-                <td class="adminData">
-                    <a href="@Model.Url">@Model.Url</a>
-                </td>
-            </tr>
-        }
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.IncludeInFooterColumn1):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(x => x.IncludeInFooterColumn1)
+                @Html.ValidationMessageFor(model => model.IncludeInFooterColumn1)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.IncludeInFooterColumn2):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(x => x.IncludeInFooterColumn2)
+                @Html.ValidationMessageFor(model => model.IncludeInFooterColumn2)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.IncludeInFooterColumn3):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(x => x.IncludeInFooterColumn3)
+                @Html.ValidationMessageFor(model => model.IncludeInFooterColumn3)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.DisplayOrder):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(x => x.DisplayOrder)
+                @Html.ValidationMessageFor(model => model.DisplayOrder)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.AccessibleWhenStoreClosed):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(x => x.AccessibleWhenStoreClosed)
+                @Html.ValidationMessageFor(model => model.AccessibleWhenStoreClosed)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.TopicTemplateId):
+            </td>
+            <td class="adminData">
+                @Html.DropDownListFor(model => model.TopicTemplateId, Model.AvailableTopicTemplates)
+                @Html.ValidationMessageFor(model => model.TopicTemplateId)
+            </td>
+        </tr>
     </table>
-    @(Html.LocalizedEditor<TopicModel, TopicLocalizedModel>("topic-info-localized",
-                @<table class="adminContent">
-                    <tr>
-                        <td class="adminTitle">
-                            @Html.NopLabelFor(model => model.Locales[item].Title):
-                        </td>
-                        <td class="adminData">
-                            @Html.EditorFor(model => model.Locales[item].Title)
-                            @Html.ValidationMessageFor(model => model.Locales[item].Title)
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="adminTitle">
-                            @Html.NopLabelFor(model => model.Locales[item].Body):
-                        </td>
-                        <td class="adminData">
-                            @Html.EditorFor(model => model.Locales[item].Body, "RichEditor")
-                            @Html.ValidationMessageFor(model => model.Locales[item].Body)
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            @Html.HiddenFor(model => model.Locales[item].LanguageId)
-                        </td>
-                    </tr>
-                </table>
-                ,
-                @<table class="adminContent">
-                    <tr>
-                        <td class="adminTitle">
-                            @Html.NopLabelFor(model => model.Title):
-                        </td>
-                        <td class="adminData">
-                            @Html.EditorFor(model => model.Title)
-                            @Html.ValidationMessageFor(model => model.Title)
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="adminTitle">
-                            @Html.NopLabelFor(model => model.Body):
-                        </td>
-                        <td class="adminData">
-                            @Html.EditorFor(x => x.Body, "RichEditor")
-                            @Html.ValidationMessageFor(model => model.Body)
-                        </td>
-                    </tr>
-                </table>
-            ))
 }
 @helper TabSeo()
     {
@@ -299,6 +351,7 @@
             <td class="adminData">
                 @if (Model.AvailableStores != null && Model.AvailableStores.Count > 0)
                 {
+                    @Html.Action("MultistoreDisabledWarning", "Common")
                     foreach (var store in Model.AvailableStores)
                     {
                     <div>
@@ -309,7 +362,8 @@
                 else
                 {
                     <div>No stores defined</div>
-                }</td>
+                }
+            </td>
         </tr>
     </table>
 }

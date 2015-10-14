@@ -6,6 +6,7 @@
     //page title
     ViewBag.Title = T("Admin.Catalog.ProductReviews").Text;
 }
+@Html.AntiForgeryToken()
 <div class="section-header">
     <div class="title">
         <img src="@Url.Content("~/Administration/Content/images/ico-catalog.png")" alt="" />
@@ -43,7 +44,7 @@
         </tr>
         <tr>
             <td colspan="2">
-                <input type="button" id="btnSearch" class="k-button" value="@T("Admin.Common.Search")" />
+                <input type="button" id="search-productreviews" class="k-button" value="@T("Admin.Common.Search")" />
             </td>
         </tr>
     </table>
@@ -145,7 +146,7 @@
                 $(document).ready(function () {
 
                     //search button
-                    $('#btnSearch').click(function () {
+                    $('#search-productreviews').click(function () {
                         //search
                         var grid = $('#productreviews-grid').data('kendoGrid');
                         grid.dataSource.page(1); //new search. Set page size to 1
@@ -163,6 +164,7 @@
                         var postData = {
                             selectedIds: selectedIds
                         };
+                        addAntiForgeryToken(postData);
 
                         $.ajax({
                             cache:false,
@@ -189,6 +191,7 @@
                         var postData = {
                             selectedIds: selectedIds
                         };
+                        addAntiForgeryToken(postData);
 
                         $.ajax({
                             cache:false,
@@ -237,11 +240,13 @@
                 });
 
                 function additionalData() {
-                    return {
+                    var data = {
                         CreatedOnFrom: $('#@Html.FieldIdFor(model => model.CreatedOnFrom)').val(),
                         CreatedOnTo: $('#@Html.FieldIdFor(model => model.CreatedOnTo)').val(),
                         SearchText: $('#@Html.FieldIdFor(model => model.SearchText)').val()
                     };
+                    addAntiForgeryToken(data);
+                    return data;
                 }
 
                 function onDataBound(e) {
@@ -258,7 +263,7 @@
 
                 function updateMasterCheckbox() {
                     var numChkBoxes = $('#productreviews-grid input[type=checkbox][id!=mastercheckbox]').length;
-                    var numChkBoxesChecked = $('#productreviews-grid input[type=checkbox][checked][id!=mastercheckbox]').length;
+                    var numChkBoxesChecked = $('#productreviews-grid input[type=checkbox][id!=mastercheckbox]:checked').length;
                     $('#mastercheckbox').attr('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
                 }
 

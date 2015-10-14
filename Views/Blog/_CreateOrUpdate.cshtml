@@ -118,6 +118,15 @@
         </tr>
         <tr>
             <td class="adminTitle">
+                @Html.NopLabelFor(model => model.BodyOverview):
+            </td>
+            <td class="adminData">
+                @Html.TextAreaFor(model => model.BodyOverview, new { style = "Width: 500px; Height: 150px;" })
+                @Html.ValidationMessageFor(model => model.BodyOverview)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
                 @Html.NopLabelFor(model => model.AllowComments):
             </td>
             <td class="adminData">
@@ -234,6 +243,7 @@
             <td class="adminData">
                 @if (Model.AvailableStores != null && Model.AvailableStores.Count > 0)
                 {
+                    @Html.Action("MultistoreDisabledWarning", "Common")
                     foreach (var store in Model.AvailableStores)
                     {
                     <div>
@@ -244,7 +254,8 @@
                 else
                 {
                     <div>No stores defined</div>
-                }</td>
+                }
+            </td>
         </tr>
     </table>
 }

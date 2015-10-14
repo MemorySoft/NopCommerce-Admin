@@ -3,6 +3,7 @@
     //page title
     ViewBag.Title = T("Admin.ContentManagement.Topics").Text;
 }
+@Html.AntiForgeryToken()
 <div class="section-header">
     <div class="title">
         <img src="@Url.Content("~/Administration/Content/images/ico-content.png")" alt="" />
@@ -95,6 +96,31 @@
                             attributes: { style: "text-align:center" },
                             template: '<img src="@Url.Content("~/Administration/Content/images/")active-#=IncludeInTopMenu#.gif" />'
                         }, {
+                            field: "IncludeInFooterColumn1",
+                            title: "@T("Admin.ContentManagement.Topics.Fields.IncludeInFooterColumn1")",
+                            width: 100,
+                            headerAttributes: { style: "text-align:center" },
+                            attributes: { style: "text-align:center" },
+                            template: '<img src="@Url.Content("~/Administration/Content/images/")active-#=IncludeInFooterColumn1#.gif" />'
+                        }, {
+                            field: "IncludeInFooterColumn2",
+                            title: "@T("Admin.ContentManagement.Topics.Fields.IncludeInFooterColumn2")",
+                            width: 100,
+                            headerAttributes: { style: "text-align:center" },
+                            attributes: { style: "text-align:center" },
+                            template: '<img src="@Url.Content("~/Administration/Content/images/")active-#=IncludeInFooterColumn2#.gif" />'
+                        }, {
+                            field: "IncludeInFooterColumn3",
+                            title: "@T("Admin.ContentManagement.Topics.Fields.IncludeInFooterColumn3")",
+                            width: 100,
+                            headerAttributes: { style: "text-align:center" },
+                            attributes: { style: "text-align:center" },
+                            template: '<img src="@Url.Content("~/Administration/Content/images/")active-#=IncludeInFooterColumn3#.gif" />'
+                        }, {
+                            field: "DisplayOrder",
+                            title: "@T("Admin.ContentManagement.Topics.Fields.DisplayOrder")",
+                            width: 100
+                        }, {
                             field: "Id",
                             title: "@T("Admin.Common.Edit")",
                             width: 100,
@@ -117,9 +143,11 @@
                 });
 
                 function additionalData() {
-                    return {
+                    var data = {
                         SearchStoreId: $('#SearchStoreId').val()
                     };
+                    addAntiForgeryToken(data);
+                    return data;
                 }
             </script>
         </td>

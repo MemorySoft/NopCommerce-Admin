@@ -5,6 +5,7 @@
 }
 @using (Html.BeginForm())
 {
+    @Html.AntiForgeryToken()
     <div class="section-header">
         <div class="title">
             <img src="@Url.Content("~/Administration/Content/images/ico-customers.png")" alt="" />
@@ -16,6 +17,14 @@
             <input type="submit" name="save-continue" class="k-button" value="@T("Admin.Common.SaveContinue")" />
             <input type="button" id="sendemail" class="k-button" value="@T("Admin.Customers.Customers.SendEmail")" />
             <input type="button" id="sendprivatemessage" class="k-button" value="@T("Admin.Customers.Customers.SendPM")" />
+            @if (Model.AllowSendingOfWelcomeMessage)
+            {
+                <input type="submit" name="send-welcome-message" class="k-button" value="@T("Admin.Customers.Customers.SendWelcomeMessage")" onclick="return confirm('@T("Admin.Common.AreYouSure")');" />
+            }
+            @if (Model.AllowReSendingOfActivationMessage)
+            {
+                <input type="submit" name="resend-activation-message" class="k-button" value="@T("Admin.Customers.Customers.ReSendActivationMessage")" onclick="return confirm('@T("Admin.Common.AreYouSure")');" />
+            }
             <span id="customer-delete" class="k-button">@T("Admin.Common.Delete")</span>
         </div>
     </div>
@@ -27,6 +36,7 @@
 <div id="sendemail-window" style="display:none;">
     @using (Html.BeginForm("SendEmail", "Customer", new {id = Model.Id}))
     {
+        @Html.AntiForgeryToken()
         <table style="text-align:left;">
             <tr>
                 <td class="adminTitle">
@@ -77,6 +87,7 @@
 <div id="sendprivatemessage-window" style="display:none;">
     @using (Html.BeginForm("SendPm", "Customer", new { id = Model.Id }))
     {
+    @Html.AntiForgeryToken()
     <table style="text-align: left;">
         <tr>
             <td class="adminTitle">

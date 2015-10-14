@@ -9,6 +9,7 @@
 
 @using (Html.BeginForm())
 {
+    @Html.AntiForgeryToken()
     <div class="section-header">
         <div class="title">
             <img src="@Url.Content("~/Administration/Content/images/ico-sales.png")" alt="" />
@@ -18,11 +19,12 @@
             @if (!Model.IsLoggedInAsVendor)
             {
                 //a vendor cannot export/import orders
-                <a href="@Url.Action("ExportXmlAll")" class="k-button">@T("Admin.Common.ExportToXml.All")</a>
+                <input type="submit" name="exportxml-all" class="k-button" value="@T("Admin.Common.ExportToXml.All")" />
                 <input type="button" id="exportxml-selected" class="k-button" value="@T("Admin.Common.ExportToXml.Selected")" />
-                <a href="@Url.Action("ExportExcelAll")" class="k-button">@T("Admin.Common.ExportToExcel.All")</a>
+                <input type="submit" name="exportexcel-all" class="k-button" value="@T("Admin.Common.ExportToExcel.All")" />
                 <input type="button" id="exportexcel-selected" class="k-button" value="@T("Admin.Common.ExportToExcel.Selected")" />
             }
+            <input type="submit" name="pdf-invoice-all" class="k-button" value="@T("Admin.Orders.PdfInvoice.All")" />
             <input type="button" id="pdf-invoice-selected" class="k-button" value="@T("Admin.Orders.PdfInvoice.Selected")" />
         </div>
     </div>
@@ -101,6 +103,22 @@
         </tr>
         <tr>
             <td class="adminTitle">
+                @Html.NopLabelFor(model => model.BillingCountryId):
+            </td>
+            <td class="adminData">
+                @Html.DropDownList("BillingCountryId", Model.AvailableCountries)
+            </td>
+        </tr>
+        <tr @(Model.IsLoggedInAsVendor ? Html.Raw("style='display: none;'") : null)>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.PaymentMethodSystemName):
+            </td>
+            <td class="adminData">
+                @Html.DropDownList("PaymentMethodSystemName", Model.AvailablePaymentMethods)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
                 @Html.NopLabelFor(model => model.ProductId):
             </td>
             <td class="adminData">
@@ -111,7 +129,7 @@
 
                 @Html.TextBoxFor(model => model.ProductId, new { autocomplete = "off", style = "display:none;" })
                 <script type="text/javascript">
-                    $(function() {
+                    $(document).ready(function() {
                         $('#search-product-name').autocomplete({
                             delay: 500,
                             minLength: 3,
@@ -136,6 +154,14 @@
                 </script>
             </td>
         </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.OrderNotes):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.OrderNotes)
+            </td>
+        </tr>
        <tr>
             <td class="adminTitle">
                 @Html.NopLabelFor(model => model.OrderGuid):
@@ -155,7 +181,7 @@
         </tr>
         <tr>
             <td colspan="2">
-                <input type="button" id="btnSearch" class="k-button" value="@T("Admin.Common.Search")" />
+                <input type="button" id="search-orders" class="k-button" value="@T("Admin.Common.Search")" />
             </td>
         </tr>
     </table>
@@ -298,7 +324,7 @@
                     $(document).ready(function () {
 
                         //search button
-                        $('#btnSearch').click(function () {
+                        $('#search-orders').click(function () {
                             //search
                             var grid = $('#orders-grid').data('kendoGrid');
                             grid.dataSource.page(1); //new search. Set page size to 1
@@ -311,7 +337,14 @@
 
                         $("#@Html.FieldIdFor(model => model.CustomerEmail)").keydown(function (event) {
                             if (event.keyCode == 13) {
-                                $("#btnSearch").click();
+                                $("#search-orders").click();
+                                return false;
+                            }
+                        });
+
+                        $("#@Html.FieldIdFor(model => model.OrderNotes)").keydown(function (event) {
+                            if (event.keyCode == 13) {
+                                $("#search-orders").click();
                                 return false;
                             }
                         });
@@ -344,7 +377,7 @@
                     });
 
                     function additionalData() {
-                        return {
+                        var data = {
                             StartDate: $('#@Html.FieldIdFor(model => model.StartDate)').val(),
                             EndDate: $('#@Html.FieldIdFor(model => model.EndDate)').val(),
                             CustomerEmail: $('#@Html.FieldIdFor(model => model.CustomerEmail)').val(),
@@ -354,9 +387,14 @@
                             StoreId: $('#@Html.FieldIdFor(model => model.StoreId)').val(),
                             VendorId: $('#@Html.FieldIdFor(model => model.VendorId)').val(),
                             WarehouseId: $('#@Html.FieldIdFor(model => model.WarehouseId)').val(),
+                            BillingCountryId: $('#@Html.FieldIdFor(model => model.BillingCountryId)').val(),
+                            PaymentMethodSystemName: $('#@Html.FieldIdFor(model => model.PaymentMethodSystemName)').val(),
                             ProductId: $('#@Html.FieldIdFor(model => model.ProductId)').val(),
+                            OrderNotes: $('#@Html.FieldIdFor(model => model.OrderNotes)').val(),
                             OrderGuid: $('#@Html.FieldIdFor(model => model.OrderGuid)').val()
                         };
+                        addAntiForgeryToken(data);
+                        return data;
                     }
 
                     function onDataBound(e) {
@@ -383,7 +421,7 @@
                     
                     function updateMasterCheckbox() {
                         var numChkBoxes = $('#orders-grid input[type=checkbox][id!=mastercheckbox]').length;
-                        var numChkBoxesChecked = $('#orders-grid input[type=checkbox][checked][id!=mastercheckbox]').length;
+                        var numChkBoxesChecked = $('#orders-grid input[type=checkbox][id!=mastercheckbox]:checked').length;
                         $('#mastercheckbox').attr('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
                     }
                 </script>
@@ -396,6 +434,7 @@
 @*export selected (XML). We don't use GET approach because it's limited to 2K-4K chars and won't work for large number of entities*@
 @using (Html.BeginForm("ExportXmlSelected", "Order", FormMethod.Post, new { id = "export-xml-selected-form" }))
 {
+    @Html.AntiForgeryToken()
     <input type="hidden" id="selectedIds" name="selectedIds" value="" />
 }
 <script type="text/javascript">
@@ -415,6 +454,7 @@
 @*export selected (Excel). We don't use GET approach because it's limited to 2K-4K chars and won't work for large number of entities*@
 @using (Html.BeginForm("ExportExcelSelected", "Order", FormMethod.Post, new { id = "export-excel-selected-form" }))
 {
+    @Html.AntiForgeryToken()
     <input type="hidden" id="selectedIds" name="selectedIds" value="" />
 }
 <script type="text/javascript">
@@ -434,6 +474,7 @@
 @*Print packaging slips selected (XML). We don't use GET approach because it's limited to 2K-4K chars and won't work for large number of entities*@
 @using (Html.BeginForm("PdfInvoiceSelected", "Order", FormMethod.Post, new { id = "pdf-invoice-selected-form" }))
 {
+    @Html.AntiForgeryToken()
     <input type="hidden" id="selectedIds" name="selectedIds" value="" />
 }
 <script type="text/javascript">

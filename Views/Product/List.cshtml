@@ -9,6 +9,7 @@
 }
 @using (Html.BeginForm())
 {
+    @Html.AntiForgeryToken()
     <div class="section-header">
         <div class="title">
             <img src="@Url.Content("~/Administration/Content/images/ico-catalog.png")" alt="" />
@@ -16,10 +17,10 @@
         </div>
         <div class="options">
             <a href="@Url.Action("Create")" class="k-button">@T("Admin.Common.AddNew")</a>
-            <a href="@Url.Action("DownloadCatalogAsPdf")" class="k-button">@T("Admin.Catalog.Products.List.DownloadPDF")</a>
-            <a href="@Url.Action("ExportXmlAll")" class="k-button">@T("Admin.Common.ExportToXml.All")</a>
+            <input type="submit" name="download-catalog-pdf" class="k-button" value="@T("Admin.Catalog.Products.List.DownloadPDF")" />
+            <input type="submit" name="exportxml-all" class="k-button" value="@T("Admin.Common.ExportToXml.All")" />
             <input type="button" id="exportxml-selected" class="k-button" value="@T("Admin.Common.ExportToXml.Selected")" />
-            <a href="@Url.Action("ExportExcelAll")" class="k-button">@T("Admin.Common.ExportToExcel.All")</a>
+            <input type="submit" name="exportexcel-all" class="k-button" value="@T("Admin.Common.ExportToExcel.All")" />
             <input type="button" id="exportexcel-selected" class="k-button" value="@T("Admin.Common.ExportToExcel.Selected")" />
             @if (!Model.IsLoggedInAsVendor)
             {
@@ -96,6 +97,14 @@
         </tr>
         <tr>
             <td class="adminTitle">
+                @Html.NopLabelFor(model => model.SearchPublishedId):
+            </td>
+            <td class="adminData">
+                @Html.DropDownList("SearchPublishedId", Model.AvailablePublishedOptions)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
                 @Html.NopLabelFor(model => model.GoDirectlyToSku):
             </td>
             <td class="adminData">
@@ -160,16 +169,13 @@
                                     attributes: { style: "text-align:center" },
                                     template: "<input type='checkbox' value='#=Id#' class='checkboxGroups'/>",
                                     width: 50
-                                },  
-                                @if (Model.DisplayProductPictures)
+                                },
                                 {
-                                    <text>{
-                                field: "PictureThumbnailUrl",
-                                title: "@T("Admin.Catalog.Products.Fields.PictureThumbnailUrl")",
-                                template: '<img src="#=PictureThumbnailUrl#" />',
-                            width: 200
-                        },</text>
-                                }
+                                    field: "PictureThumbnailUrl",
+                                    title: "@T("Admin.Catalog.Products.Fields.PictureThumbnailUrl")",
+                                    template: '<img src="#=PictureThumbnailUrl#" />',
+                                    width: 100
+                                },
                                 {
                                     field: "Name",
                                     title: "@T("Admin.Catalog.Products.Fields.Name")",
@@ -185,13 +191,9 @@
                                     //if not a grouped product, then display
                                     template: "# if(ProductTypeId != @((int)ProductType.GroupedProduct)) {# #:Price# #}  #"
                                 }, {
-                                    field: "StockQuantity",
+                                    field: "StockQuantityStr",
                                     title: "@T("Admin.Catalog.Products.Fields.StockQuantity")",
-                                    width: 100,
-                                    //if not a grouped product
-                                    //AND "manage inventory" is "Track inventory"
-                                    //then display
-                                    template: "# if(ProductTypeId != @((int)ProductType.GroupedProduct) && ManageInventoryMethodId == @((int)ManageInventoryMethod.ManageStock)) {# #:StockQuantity# #}  #"
+                                    width: 100
                                 }, {
                                     field: "ProductTypeName",
                                     title: "@T("Admin.Catalog.Products.Fields.ProductType")",
@@ -256,6 +258,7 @@
                 var postData = {
                     selectedIds: selectedIds
                 };
+                addAntiForgeryToken(postData);
 
                 $.ajax({
                     cache: false,
@@ -303,7 +306,7 @@
         });
 
         function additionalData() {
-            return {
+            var data = {
                 SearchProductName: $('#@Html.FieldIdFor(model => model.SearchProductName)').val(),
                 SearchCategoryId: $('#SearchCategoryId').val(),
                 SearchIncludeSubCategories: $('#@Html.FieldIdFor(model => model.SearchIncludeSubCategories)').is(':checked'),
@@ -311,8 +314,11 @@
                 SearchStoreId: $('#SearchStoreId').val(),
                 SearchWarehouseId: $('#SearchWarehouseId').val(),
                 SearchVendorId: $('#SearchVendorId').val(),
-                SearchProductTypeId: $('#SearchProductTypeId').val()
+                SearchProductTypeId: $('#SearchProductTypeId').val(),
+                SearchPublishedId: $('#SearchPublishedId').val()
             };
+            addAntiForgeryToken(data);
+            return data;
         }
 
         function onDataBound(e) {
@@ -328,7 +334,7 @@
 
         function updateMasterCheckbox() {
             var numChkBoxes = $('#products-grid input[type=checkbox][id!=mastercheckbox]').length;
-            var numChkBoxesChecked = $('#products-grid input[type=checkbox][checked][id!=mastercheckbox]').length;
+            var numChkBoxesChecked = $('#products-grid input[type=checkbox][id!=mastercheckbox]:checked').length;
             $('#mastercheckbox').attr('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
         }
     </script>  
@@ -339,6 +345,7 @@
 <div id="importexcel-window" style="display:none;">
     @using (Html.BeginForm("ImportExcel", "Product", FormMethod.Post, new {enctype = "multipart/form-data"}))
     {
+        @Html.AntiForgeryToken()
         <table style="text-align:left;">
             <tr>
                 <td colspan="2">
@@ -382,6 +389,7 @@
 @*export selected (XML). We don't use GET approach because it's limited to 2K-4K chars and won't work for large number of entities*@
 @using (Html.BeginForm("ExportXmlSelected", "Product", FormMethod.Post, new { id = "export-xml-selected-form" }))
 {
+    @Html.AntiForgeryToken()
     <input type="hidden" id="selectedIds" name ="selectedIds" value="" />
 }
 <script type="text/javascript">
@@ -401,6 +409,7 @@
 @*export selected (Excel). We don't use GET approach because it's limited to 2K-4K chars and won't work for large number of entities*@
 @using (Html.BeginForm("ExportExcelSelected", "Product", FormMethod.Post, new { id = "export-excel-selected-form" }))
 {
+    @Html.AntiForgeryToken()
     <input type="hidden" id="selectedIds" name="selectedIds" value="" />
 }
 <script type="text/javascript">

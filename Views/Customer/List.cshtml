@@ -9,6 +9,7 @@
 }
 @using (Html.BeginForm())
 {
+    @Html.AntiForgeryToken()
     <div class="section-header">
         <div class="title">
             <img src="@Url.Content("~/Administration/Content/images/ico-customers.png")" alt="" />
@@ -16,9 +17,9 @@
         </div>
         <div class="options">
             <a href="@Url.Action("Create")" class="k-button">@T("Admin.Common.AddNew")</a>
-            <a href="@Url.Action("ExportXmlAll")" class="k-button">@T("Admin.Common.ExportToXml.All")</a>
+            <input type="submit" name="exportxml-all" class="k-button" value="@T("Admin.Common.ExportToXml.All")" />
             <input type="button" id="exportxml-selected" class="k-button" value="@T("Admin.Common.ExportToXml.Selected")" />
-            <a href="@Url.Action("ExportExcelAll")" class="k-button">@T("Admin.Common.ExportToExcel.All")</a>
+            <input type="submit" name="exportexcel-all" class="k-button" value="@T("Admin.Common.ExportToExcel.All")" />
             <input type="button" id="exportexcel-selected" class="k-button" value="@T("Admin.Common.ExportToExcel.Selected")" />
         </div>
     </div>
@@ -370,7 +371,7 @@
 
                     function updateMasterCheckbox() {
                         var numChkBoxes = $('#customers-grid input[type=checkbox][id!=mastercheckbox]').length;
-                        var numChkBoxesChecked = $('#customers-grid input[type=checkbox][checked][id!=mastercheckbox]').length;
+                        var numChkBoxesChecked = $('#customers-grid input[type=checkbox][id!=mastercheckbox]:checked').length;
                         $('#mastercheckbox').attr('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
                     }
 
@@ -380,7 +381,7 @@
                             customerRoleIds.push($(this).val());
                         });
 
-                        return {
+                        var data = {
                             SearchCustomerRoleIds: customerRoleIds.join(","),
                             SearchEmail: $('#@Html.FieldIdFor(model => model.SearchEmail)').val(),
                             SearchUsername: $('#@Html.FieldIdFor(model => model.SearchUsername)').val(),
@@ -392,6 +393,8 @@
                             SearchPhone: $('#@Html.FieldIdFor(model => model.SearchPhone)').val(),
                             SearchZipPostalCode: $('#@Html.FieldIdFor(model => model.SearchZipPostalCode)').val()
                         };
+                        addAntiForgeryToken(data);
+                        return data;
                     }
                 </script>
             </td>
@@ -402,6 +405,7 @@
 @*export selected (XML). We don't use GET approach because it's limited to 2K-4K chars and won't work for large number of entities*@
 @using (Html.BeginForm("ExportXmlSelected", "Customer", FormMethod.Post, new { id = "export-xml-selected-form" }))
 {
+    @Html.AntiForgeryToken()
     <input type="hidden" id="selectedIds" name="selectedIds" value="" />
 }
 <script type="text/javascript">
@@ -421,6 +425,7 @@
 @*export selected (Excel). We don't use GET approach because it's limited to 2K-4K chars and won't work for large number of entities*@
 @using (Html.BeginForm("ExportExcelSelected", "Customer", FormMethod.Post, new { id = "export-excel-selected-form" }))
 {
+    @Html.AntiForgeryToken()
     <input type="hidden" id="selectedIds" name="selectedIds" value="" />
 }
 <script type="text/javascript">

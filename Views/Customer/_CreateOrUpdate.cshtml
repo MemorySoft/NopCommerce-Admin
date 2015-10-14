@@ -108,11 +108,17 @@
             $("#@Html.FieldIdFor(model => model.CountryId)").change(function() {
                 var selectedItem = $(this).val();
                 var ddlStates = $("#@Html.FieldIdFor(model => model.StateProvinceId)");
+                
+                var postData = {
+                    countryId: selectedItem,
+                    addSelectStateItem: "true"
+                };
+
                 $.ajax({
                     cache: false,
                     type: "GET",
                     url: "@(Url.Action("GetStatesByCountryId", "Country"))",
-                    data: { "countryId": selectedItem, "addSelectStateItem": "true" },
+                    data: postData,
                     success: function(data) {
                         ddlStates.html('');
                         $.each(data, function(id, option) {
@@ -456,15 +462,15 @@
                 </td>
             </tr>
         }
-        @if (Model.AffiliateId.HasValue && Model.AffiliateId.Value > 0)
+        @if (Model.AffiliateId > 0)
         {
             <tr>
                 <td class="adminTitle">
                     @Html.NopLabelFor(model => model.AffiliateId):
                 </td>
                 <td class="adminData">
-                    <a href="@Url.Action("Edit", "Affiliate", new { id = Model.AffiliateId.Value })">@Model.AffiliateId.Value
-                        - @T("Admin.Common.View")</a>
+                    <a href="@Url.Action("Edit", "Affiliate", new { id = Model.AffiliateId })">@Model.AffiliateName - @T("Admin.Common.View")</a>
+                    <input type="submit" name="remove-affiliate" class="k-button" value="@T("Admin.Customers.Customers.Fields.Affiliate.Remove")" />
                 </td>
             </tr>
         }
@@ -570,7 +576,8 @@
                         read: {
                             url: "@Html.Raw(Url.Action("OrderList", "Customer", new { customerId = Model.Id }))",
                             type: "POST",
-                            dataType: "json"
+                            dataType: "json",
+                            data: addAntiForgeryToken
                         }
                     },
                     schema: {
@@ -650,7 +657,8 @@
                         read: {
                             url: "@Html.Raw(Url.Action("RewardPointsHistorySelect", "Customer", new { customerId = Model.Id }))",
                             type: "POST",
-                            dataType: "json"
+                            dataType: "json",
+                            data: addAntiForgeryToken
                         }
                     },
                     schema: {
@@ -734,11 +742,19 @@
                 var rewardPointsValue = $("#@Html.FieldIdFor(model => model.AddRewardPointsValue)").val();
                 var rewardPointsMessage = $("#@Html.FieldIdFor(model => model.AddRewardPointsMessage)").val();
                 $('#addRewardPoints').attr('disabled', true);
+                
+                var postData = {
+                    addRewardPointsValue: rewardPointsValue,
+                    addRewardPointsMessage: rewardPointsMessage,
+                    customerId: @Model.Id
+                };
+                addAntiForgeryToken(postData);
+
                 $.ajax({
                     cache:false,
                     type: "POST",
                     url: "@(Url.Action("RewardPointsHistoryAdd", "Customer"))",
-                    data: { "addRewardPointsValue": rewardPointsValue, "addRewardPointsMessage": rewardPointsMessage, "customerId": @Model.Id},
+                    data: postData,
                     success: function (data) {
                         var grid = $("#customer-rewardpoints-grid").data('kendoGrid');
                         grid.dataSource.read();
@@ -766,12 +782,14 @@
                         read: {
                             url: "@Html.Raw(Url.Action("AddressesSelect", "Customer", new { customerId = Model.Id }))",
                             type: "POST",
-                            dataType: "json"
+                            dataType: "json",
+                            data: addAntiForgeryToken
                         },
                         destroy: {
                             url: "@Html.Raw(Url.Action("AddressDelete", "Customer", new { customerId = Model.Id }))",
                             type: "POST",
-                            dataType: "json"
+                            dataType: "json",
+                            data: addAntiForgeryToken
                         }
                     },
                     schema: {
@@ -854,7 +872,8 @@
                                     read: {
                                         url: "@Html.Raw(Url.Action("GetCartList", "Customer", new { customerId = Model.Id, cartTypeId = (int)ShoppingCartType.ShoppingCart }))",
                                         type: "POST",
-                                        dataType: "json"
+                                        dataType: "json",
+                                        data: addAntiForgeryToken
                                     }
                                 },
                                 schema: {
@@ -886,7 +905,8 @@
                                 field: "ProductName",
                                 title: "@T("Admin.CurrentCarts.Product")",
                                 width:500,
-                                template: '<a href="@Url.Content("~/Admin/Product/Edit/")#=ProductId#">#=ProductName#</a>'
+                                template: '<a href="@Url.Content("~/Admin/Product/Edit/")#=ProductId#">#:ProductName#</a>' +
+                                    '# if(AttributeInfo && AttributeInfo.length > 0) {# <br />#=AttributeInfo# #} #'
                             }, {
                                 field: "Quantity",
                                 title: "@T("Admin.CurrentCarts.Quantity")",
@@ -933,7 +953,8 @@
                                     read: {
                                         url: "@Html.Raw(Url.Action("GetCartList", "Customer", new { customerId = Model.Id, cartTypeId = (int)ShoppingCartType.Wishlist }))",
                                         type: "POST",
-                                        dataType: "json"
+                                        dataType: "json",
+                                        data: addAntiForgeryToken
                                     }
                                 },
                                 schema: {
@@ -965,7 +986,8 @@
                                 field: "ProductName",
                                 title: "@T("Admin.CurrentCarts.Product")",
                                 width:500,
-                                template: '<a href="@Url.Content("~/Admin/Product/Edit/")#=ProductId#">#=ProductName#</a>'
+                                template: '<a href="@Url.Content("~/Admin/Product/Edit/")#=ProductId#">#:ProductName#</a>' +
+                                    '# if(AttributeInfo && AttributeInfo.length > 0) {# <br />#=AttributeInfo# #} #'
                             }, {
                                 field: "Quantity",
                                 title: "@T("Admin.CurrentCarts.Quantity")",
@@ -1015,7 +1037,8 @@
                                     read: {
                                         url: "@Html.Raw(Url.Action("ListActivityLog", "Customer", new { customerId = Model.Id }))",
                                         type: "POST",
-                                        dataType: "json"
+                                        dataType: "json",
+                                        data: addAntiForgeryToken
                                     }
                                 },
                                 schema: {

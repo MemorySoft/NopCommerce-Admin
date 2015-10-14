@@ -4,7 +4,8 @@
     ViewBag.Title = T("Admin.Configuration.Settings.Shipping").Text;
 }
 @using (Html.BeginForm())
-{    
+{
+    @Html.AntiForgeryToken()
     <script type="text/javascript">
     $(document).ready(function () {
         $("#@Html.FieldIdFor(model => model.AllowPickUpInStore)").click(toggleAllowPickUpInStore);
@@ -74,6 +75,16 @@
             <td class="adminData">
                 @Html.EditorFor(model => model.UseWarehouseLocation)
                 @Html.ValidationMessageFor(model => model.UseWarehouseLocation)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.OverrideStoreCheckboxFor(model => model.NotifyCustomerAboutShippingFromMultipleLocations_OverrideForStore, model => model.NotifyCustomerAboutShippingFromMultipleLocations, Model.ActiveStoreScopeConfiguration)
+                @Html.NopLabelFor(model => model.NotifyCustomerAboutShippingFromMultipleLocations):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.NotifyCustomerAboutShippingFromMultipleLocations)
+                @Html.ValidationMessageFor(model => model.NotifyCustomerAboutShippingFromMultipleLocations)
             </td>
         </tr>
         <tr>

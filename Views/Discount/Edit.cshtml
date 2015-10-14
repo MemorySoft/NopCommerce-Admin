@@ -3,8 +3,9 @@
     //page title
     ViewBag.Title = T("Admin.Promotions.Discounts.EditDiscountDetails").Text;
 }
-@using (Html.BeginForm())
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "discount-form" }))
 {
+    @Html.AntiForgeryToken()
     <div class="section-header">
         <div class="title">
         <img src="@Url.Content("~/Administration/Content/images/ico-promotions.png")" alt="" />

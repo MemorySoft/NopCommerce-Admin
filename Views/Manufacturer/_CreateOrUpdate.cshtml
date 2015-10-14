@@ -14,9 +14,12 @@
             @T("Admin.Catalog.Manufacturers.Products")
         </li>
         <li @Html.RenderSelectedTabIndex(3, GetSelectedTabIndex())>
-            @T("Admin.Catalog.Manufacturers.Acl")
+            @T("Admin.Catalog.Manufacturers.Discounts")
         </li>
         <li @Html.RenderSelectedTabIndex(4, GetSelectedTabIndex())>
+            @T("Admin.Catalog.Manufacturers.Acl")
+        </li>
+        <li @Html.RenderSelectedTabIndex(5, GetSelectedTabIndex())>
             @T("Admin.Catalog.Manufacturers.Stores")
         </li>
     </ul>
@@ -28,6 +31,9 @@
     </div>
     <div>
         @TabProducts()
+    </div>
+    <div>
+        @TabDiscounts()
     </div>
     <div>
         @TabAcl()
@@ -311,17 +317,20 @@
                                             read: {
                                                 url: "@Html.Raw(Url.Action("ProductList", "Manufacturer", new { manufacturerId = Model.Id }))",
                                                 type: "POST",
-                                                dataType: "json"
+                                                dataType: "json",
+                                                data: addAntiForgeryToken
                                             },
                                             update: {
                                                 url:"@Html.Raw(Url.Action("ProductUpdate", "Manufacturer"))",
                                                 type: "POST",
-                                                dataType: "json"
+                                                dataType: "json",
+                                                data: addAntiForgeryToken
                                             },
                                             destroy: {
                                                 url: "@Html.Raw(Url.Action("ProductDelete", "Manufacturer"))",
                                                 type: "POST",
-                                                dataType: "json"
+                                                dataType: "json",
+                                                data: addAntiForgeryToken
                                             }
                                         },
                                         schema: {
@@ -425,7 +434,22 @@
             @T("Admin.Catalog.Manufacturers.Products.SaveBeforeEdit")
     }
 }
-
+@helper TabDiscounts()
+{
+    if (Model.AvailableDiscounts != null && Model.AvailableDiscounts.Count > 0)
+    {
+        foreach (var discount in Model.AvailableDiscounts)
+        {
+            <input type="checkbox" name="SelectedDiscountIds" value="@discount.Id"
+                   @if (Model.SelectedDiscountIds != null && Model.SelectedDiscountIds.Contains(discount.Id)) { <text> checked="checked" </text>  } />@discount.Name
+                <br />
+        }
+    }
+    else
+    {
+        @T("Admin.Catalog.Manufacturers.Discounts.NoDiscounts")
+    }
+}
 @helper TabAcl()
 {
     <script type="text/javascript">
@@ -464,6 +488,7 @@
             <td class="adminData">
                 @if (Model.AvailableCustomerRoles != null && Model.AvailableCustomerRoles.Count > 0)
                 {
+                    @Html.Action("AclDisabledWarning", "Common")
                     foreach (var customerRole in Model.AvailableCustomerRoles)
                     {
                     <div>
@@ -474,7 +499,8 @@
                 else
                 {
                     <div>No customer roles defined</div>
-                }</td>
+                }
+            </td>
         </tr>
     </table>
 }
@@ -517,6 +543,7 @@
             <td class="adminData">
                 @if (Model.AvailableStores != null && Model.AvailableStores.Count > 0)
                 {
+                    @Html.Action("MultistoreDisabledWarning", "Common")
                     foreach (var store in Model.AvailableStores)
                     {
                     <div>
@@ -527,7 +554,8 @@
                 else
                 {
                     <div>No stores defined</div>
-                }</td>
+                }
+            </td>
         </tr>
     </table>
 }

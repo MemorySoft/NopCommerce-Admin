@@ -11,13 +11,14 @@
 
 @using (Html.BeginForm())
 {
+    @Html.AntiForgeryToken()
     <div class="section-header">
         <div class="title">
             <img src="@Url.Content("~/Administration/Content/images/ico-sales.png")" alt="" />
             @T("Admin.Orders.Shipments.List")
         </div>
         <div class="options">
-            <a href="@Url.Action("PdfPackagingSlipAll")" class="k-button">@T("Admin.Orders.Shipments.PrintPackagingSlip.All")</a>
+            <input type="submit" name="exportpackagingslips-all" class="k-button" value="@T("Admin.Orders.Shipments.PrintPackagingSlip.All")" />
             <input type="button" id="exportpackagingslips-selected" class="k-button" value="@T("Admin.Orders.Shipments.PrintPackagingSlip.Selected")" />
             <input type="button" id="ship-selected" class="k-button" value="@T("Admin.Orders.Shipments.ShipSelected")" />
             <input type="button" id="deliver-selected" class="k-button" value="@T("Admin.Orders.Shipments.DeliverySelected")" />
@@ -90,7 +91,7 @@
         </tr>
         <tr>
             <td colspan="2">
-                <input type="button" id="btnSearch" class="k-button" value="@T("Admin.Common.Search")" />
+                <input type="button" id="search-shipments" class="k-button" value="@T("Admin.Common.Search")" />
             </td>
         </tr>
     </table>
@@ -188,7 +189,8 @@
                                     read: {
                                         url: "@Html.Raw(Url.Action("ShipmentsItemsByShipmentId", "Order"))?shipmentId="+e.data.Id,
                                         type: "POST",
-                                        dataType: "json"
+                                        dataType: "json",
+                                        data: addAntiForgeryToken
                                     }
                                 },
                                 schema: {
@@ -272,19 +274,19 @@
 
             $("#@Html.FieldIdFor(model => model.TrackingNumber)").keydown(function (event) {
                 if (event.keyCode == 13) {
-                    $("#btnSearch").click();
+                    $("#search-shipments").click();
                     return false;
                 }
             });
             $("#@Html.FieldIdFor(model => model.City)").keydown(function (event) {
                 if (event.keyCode == 13) {
-                    $("#btnSearch").click();
+                    $("#search-shipments").click();
                     return false;
                 }
             });
             
             //search button
-            $('#btnSearch').click(function () {
+            $('#search-shipments').click(function () {
                 //search
                 var grid = $('#shipments-grid').data('kendoGrid');
                 grid.dataSource.page(1); //new search. Set page size to 1
@@ -303,6 +305,7 @@
                 var postData = {
                     selectedIds: selectedIds
                 };
+                addAntiForgeryToken(postData);
 
                 $.ajax({
                     cache: false,
@@ -329,6 +332,7 @@
                 var postData = {
                     selectedIds: selectedIds
                 };
+                addAntiForgeryToken(postData);
 
                 $.ajax({
                     cache: false,
@@ -377,7 +381,7 @@
         });
 
         function additionalData() {
-            return {
+            var data = {
                 StartDate: $('#@Html.FieldIdFor(model => model.StartDate)').val(),
                 EndDate: $('#@Html.FieldIdFor(model => model.EndDate)').val(),
                 TrackingNumber: $('#@Html.FieldIdFor(model => model.TrackingNumber)').val(),
@@ -387,10 +391,11 @@
                 WarehouseId: $('#@Html.FieldIdFor(model => model.WarehouseId)').val(),
                 LoadNotShipped: $('#@Html.FieldIdFor(model => model.LoadNotShipped)').is(':checked')
             };
+            addAntiForgeryToken(data);
+            return data;
         }
     
         function onDataBound(e) {
-
             $('#shipments-grid input[type=checkbox][id!=mastercheckbox]').each(function () {
                 var currentId = $(this).val();
                 var checked = jQuery.inArray(currentId, selectedIds);
@@ -403,7 +408,7 @@
 
         function updateMasterCheckbox() {
             var numChkBoxes = $('#shipments-grid input[type=checkbox][id!=mastercheckbox]').length;
-            var numChkBoxesChecked = $('#shipments-grid input[type=checkbox][checked][id!=mastercheckbox]').length;
+            var numChkBoxesChecked = $('#shipments-grid input[type=checkbox][id!=mastercheckbox]:checked').length;
             $('#mastercheckbox').attr('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
         }
    </script>
@@ -413,6 +418,7 @@
 @*export selected (Excel). We don't use GET approach because it's limited to 2K-4K chars and won't work for large number of entities*@
 @using (Html.BeginForm("PdfPackagingSlipSelected", "Order", FormMethod.Post, new { id = "pdf-packaging-slip-selected-form" }))
 {
+    @Html.AntiForgeryToken()
     <input type="hidden" id="selectedIds" name="selectedIds" value="" />
 }
 <script type="text/javascript">

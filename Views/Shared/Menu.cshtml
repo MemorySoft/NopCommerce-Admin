@@ -3,12 +3,6 @@
     //load sitemap
     var siteMap = new Nop.Web.Framework.Menu.XmlSiteMap();
     siteMap.LoadFrom("~/Administration/sitemap.config");
-    
-    //menu plugin
-    var adminMenuPlugins = EngineContext.Current.Resolve<Nop.Core.Plugins.IPluginFinder>()
-        .GetPlugins<IAdminMenuPlugin>()
-        .Where(x => x.Authenticate())
-        .ToList();
 }
 @helper RenderMenuItem(Nop.Web.Framework.Menu.SiteMapNode item)
 {
@@ -22,33 +16,23 @@
         url = item.Url.StartsWith("~/", StringComparison.Ordinal) ? Url.Content(item.Url) : item.Url;
     }
     <li>
-        
         @if (!String.IsNullOrEmpty(url))
         {
             <a href="@url">
-                @if (!String.IsNullOrEmpty(item.ImageUrl))
-                {
-                    <!-- <text>
-                        <img alt="" src="@Url.Content(item.ImageUrl)" />
-                    </text> -->
-                }
                 @item.Title
             </a>
         }
         else
         {
-            if (!String.IsNullOrEmpty(item.ImageUrl))
-            {
-                <!-- <text>
-                    <img alt="" src="@Url.Content(item.ImageUrl)" />
-                </text> -->
-            }
             @item.Title
         }
-        @if (item.ChildNodes.Any(x => x.Visible))
+        @{
+            var childNodes = item.ChildNodes.Where(x => x.Visible).ToList();
+        }
+        @if (childNodes.Any())
         {
             <ul>
-                @foreach (var childItem in item.ChildNodes.Where(x => x.Visible))
+                @foreach (var childItem in childNodes)
                 {
                     @RenderMenuItem(childItem)
                 }
@@ -58,23 +42,28 @@
 }
 
 <ul id="admin-menu">
-    @foreach (var item in siteMap.RootNode.ChildNodes.Where(x => x.Visible))
-    {
-        @RenderMenuItem(item)
-    }
-	@*plugin custom items*@
-    @if (adminMenuPlugins.Any())
-    {
-        var pluginRootMenuItem = new Nop.Web.Framework.Menu.SiteMapNode
-        {
-            Title = T("Admin.Plugins").Text,
-            Visible = true
-        };
+    @{
+        //standard (default) items
+        var rootNode = siteMap.RootNode;
+        
+        //plugins
+        var adminMenuPlugins = EngineContext.Current.Resolve<Nop.Core.Plugins.IPluginFinder>()
+            .GetPlugins<IAdminMenuPlugin>()
+            .ToList();
         foreach (var adminMenuPlugin in adminMenuPlugins)
         {
-            pluginRootMenuItem.ChildNodes.Add(adminMenuPlugin.BuildMenuItem());
+            adminMenuPlugin.ManageSiteMap(rootNode);
         }
-        @RenderMenuItem(pluginRootMenuItem)
+        //"Plugins" menu item should be visible when it has some child nodes
+        var pluginNode = rootNode.ChildNodes.FirstOrDefault(x => x.SystemName == "Third party plugins");
+        if (pluginNode != null && pluginNode.Visible)
+        {
+            pluginNode.Visible = pluginNode.ChildNodes.Any(x => x.Visible);
+        }
+    }
+    @foreach (var item in rootNode.ChildNodes.Where(x => x.Visible))
+    {
+        @RenderMenuItem(item)
     }
 </ul>
 <script>

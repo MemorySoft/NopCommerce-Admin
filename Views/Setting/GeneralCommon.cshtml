@@ -5,6 +5,7 @@
 }
 @using (Html.BeginForm())
 {
+    @Html.AntiForgeryToken()
     <div class="section-header">
         <div class="title">
             <img src="@Url.Content("~/Administration/Content/images/ico-configuration.png")" alt="" />
@@ -17,53 +18,6 @@
     @Html.Action("StoreScopeConfiguration", "Setting")
     @Html.ValidationSummary(false)
     
-    <script type="text/javascript">
-        $(document).ready(function () {
-
-            $("#@Html.FieldIdFor(model => model.StoreInformationSettings.StoreClosed)").click(toggleStoreClosed);
-            $("#@Html.FieldIdFor(model => model.SecuritySettings.CaptchaEnabled)").click(toggleReCaptcha);
-
-            toggleStoreClosed();
-            toggleReCaptcha();
-        });
-
-        function toggleStoreClosed() {
-            if ($('#@Html.FieldIdFor(model => model.StoreInformationSettings.StoreClosed)').is(':checked')) {
-                $('#pnlStoreClosedAllowForAdmins').show();
-            }
-            else {
-                $('#pnlStoreClosedAllowForAdmins').hide();
-            }
-        }
-
-        function toggleReCaptcha() {
-            if ($('#@Html.FieldIdFor(model => model.SecuritySettings.CaptchaEnabled)').is(':checked')) {
-                $('#ssCaptchaShowOnLoginPagepnl').show();
-                $('#ssCaptchaShowOnRegistrationPagepnl').show();
-                $('#ssCaptchaShowOnContactUsPagepnl').show();
-                $('#ssCaptchaShowOnEmailWishlistToFriendPagepnl').show();
-                $('#ssCaptchaShowOnEmailProductToFriendPagepnl').show();
-                $('#ssCaptchaShowOnBlogCommentPagepnl').show();
-                $('#ssCaptchaShowOnNewsCommentPagepnl').show();
-                $('#ssCaptchaShowOnProductReviewPagepnl').show();
-                $('#ssReCaptchaPublicKeypnl').show();
-                $('#ssReCaptchaPrivateKeypnl').show();
-            }
-            else {
-                $('#ssCaptchaShowOnLoginPagepnl').hide();
-                $('#ssCaptchaShowOnRegistrationPagepnl').hide();
-                $('#ssCaptchaShowOnContactUsPagepnl').hide();
-                $('#ssCaptchaShowOnEmailWishlistToFriendPagepnl').hide();
-                $('#ssCaptchaShowOnEmailProductToFriendPagepnl').hide();
-                $('#ssCaptchaShowOnBlogCommentPagepnl').hide();
-                $('#ssCaptchaShowOnNewsCommentPagepnl').hide();
-                $('#ssCaptchaShowOnProductReviewPagepnl').hide();
-                $('#ssReCaptchaPublicKeypnl').hide();
-                $('#ssReCaptchaPrivateKeypnl').hide();
-            }
-        }
-    </script>
-
 
     <div id="generalsettings-edit">
         <ul>
@@ -137,6 +91,25 @@
 }
 @helper TabStoreInformationSettings()
 {
+    <script type="text/javascript">
+    $(document).ready(function () {
+
+        $("#@Html.FieldIdFor(model => model.StoreInformationSettings.StoreClosed)").click(toggleStoreClosed);
+
+        toggleStoreClosed();
+    });
+
+    function toggleStoreClosed() {
+        if ($('#@Html.FieldIdFor(model => model.StoreInformationSettings.StoreClosed)').is(':checked')) {
+            $('#pnlStoreClosedAllowForAdmins').show();
+        }
+        else {
+            $('#pnlStoreClosedAllowForAdmins').hide();
+        }
+    }
+
+    </script>
+
     <table class="adminContent">
         <tr>
             <td class="adminTitle">
@@ -160,11 +133,11 @@
         </tr>
         <tr>
             <td class="adminTitle">
-                @Html.OverrideStoreCheckboxFor(model => model.StoreInformationSettings.DefaultStoreTheme_OverrideForStore, model => model.StoreInformationSettings.DefaultStoreTheme, Model.ActiveStoreScopeConfiguration)
+                @Html.OverrideStoreCheckboxFor(model => model.StoreInformationSettings.DefaultStoreTheme_OverrideForStore, "theme-selection-block", Model.ActiveStoreScopeConfiguration)
                 @Html.NopLabelFor(model => model.StoreInformationSettings.DefaultStoreTheme):
             </td>
             <td class="adminData">
-                <ul class="clearer" style="list-style: none;">
+                <ul class="clearer" style="list-style: none;" id="theme-selection-block">
                     @foreach (var theme in Model.StoreInformationSettings.AvailableStoreThemes)
                     {
                         <li style="float: left; width: 210px;">
@@ -194,16 +167,6 @@
             <td class="adminData">
                 @Html.EditorFor(model => model.StoreInformationSettings.AllowCustomerToSelectTheme)
                 @Html.ValidationMessageFor(model => model.StoreInformationSettings.AllowCustomerToSelectTheme)
-            </td>
-        </tr>
-        <tr>
-            <td class="adminTitle">
-                @Html.OverrideStoreCheckboxFor(model => model.StoreInformationSettings.ResponsiveDesignSupported_OverrideForStore, model => model.StoreInformationSettings.ResponsiveDesignSupported, Model.ActiveStoreScopeConfiguration)
-                @Html.NopLabelFor(model => model.StoreInformationSettings.ResponsiveDesignSupported):
-            </td>
-            <td class="adminData">
-                @Html.EditorFor(model => model.StoreInformationSettings.ResponsiveDesignSupported)
-                @Html.ValidationMessageFor(model => model.StoreInformationSettings.ResponsiveDesignSupported)
             </td>
         </tr>
         <tr>
@@ -256,11 +219,30 @@
                 @Html.ValidationMessageFor(model => model.StoreInformationSettings.GooglePlusLink)
             </td>
         </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.OverrideStoreCheckboxFor(model => model.StoreInformationSettings.SubjectFieldOnContactUsForm_OverrideForStore, model => model.StoreInformationSettings.SubjectFieldOnContactUsForm, Model.ActiveStoreScopeConfiguration)
+                @Html.NopLabelFor(model => model.StoreInformationSettings.SubjectFieldOnContactUsForm):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.StoreInformationSettings.SubjectFieldOnContactUsForm)
+                @Html.ValidationMessageFor(model => model.StoreInformationSettings.SubjectFieldOnContactUsForm)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.OverrideStoreCheckboxFor(model => model.StoreInformationSettings.UseSystemEmailForContactUsForm_OverrideForStore, model => model.StoreInformationSettings.UseSystemEmailForContactUsForm, Model.ActiveStoreScopeConfiguration)
+                @Html.NopLabelFor(model => model.StoreInformationSettings.UseSystemEmailForContactUsForm):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.StoreInformationSettings.UseSystemEmailForContactUsForm)
+                @Html.ValidationMessageFor(model => model.StoreInformationSettings.UseSystemEmailForContactUsForm)
+            </td>
+        </tr>
     </table>
 }
 @helper TabSEOSettings()
 {
-    
     <table class="adminContent">
         <tr>
             <td class="adminTitle">
@@ -396,6 +378,42 @@
 }
 @helper TabSecuritySettings()
 {
+    <script type="text/javascript">
+    $(document).ready(function () {
+
+        $("#@Html.FieldIdFor(model => model.SecuritySettings.CaptchaEnabled)").click(toggleReCaptcha);
+
+        toggleReCaptcha();
+    });
+
+    function toggleReCaptcha() {
+        if ($('#@Html.FieldIdFor(model => model.SecuritySettings.CaptchaEnabled)').is(':checked')) {
+            $('#ssCaptchaShowOnLoginPagepnl').show();
+            $('#ssCaptchaShowOnRegistrationPagepnl').show();
+            $('#ssCaptchaShowOnContactUsPagepnl').show();
+            $('#ssCaptchaShowOnEmailWishlistToFriendPagepnl').show();
+            $('#ssCaptchaShowOnEmailProductToFriendPagepnl').show();
+            $('#ssCaptchaShowOnBlogCommentPagepnl').show();
+            $('#ssCaptchaShowOnNewsCommentPagepnl').show();
+            $('#ssCaptchaShowOnProductReviewPagepnl').show();
+            $('#ssReCaptchaPublicKeypnl').show();
+            $('#ssReCaptchaPrivateKeypnl').show();
+        }
+        else {
+            $('#ssCaptchaShowOnLoginPagepnl').hide();
+            $('#ssCaptchaShowOnRegistrationPagepnl').hide();
+            $('#ssCaptchaShowOnContactUsPagepnl').hide();
+            $('#ssCaptchaShowOnEmailWishlistToFriendPagepnl').hide();
+            $('#ssCaptchaShowOnEmailProductToFriendPagepnl').hide();
+            $('#ssCaptchaShowOnBlogCommentPagepnl').hide();
+            $('#ssCaptchaShowOnNewsCommentPagepnl').hide();
+            $('#ssCaptchaShowOnProductReviewPagepnl').hide();
+            $('#ssReCaptchaPublicKeypnl').hide();
+            $('#ssReCaptchaPrivateKeypnl').hide();
+        }
+    }
+    </script>
+
     <table class="adminContent">
         <tr>
             <td class="adminTitle">
@@ -423,6 +441,33 @@
             <td class="adminData">
                 @Html.EditorFor(model => model.SecuritySettings.ForceSslForAllPages)
                 @Html.ValidationMessageFor(model => model.SecuritySettings.ForceSslForAllPages)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.SecuritySettings.EnableXsrfProtectionForAdminArea):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.SecuritySettings.EnableXsrfProtectionForAdminArea)
+                @Html.ValidationMessageFor(model => model.SecuritySettings.EnableXsrfProtectionForAdminArea)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.SecuritySettings.EnableXsrfProtectionForPublicStore):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.SecuritySettings.EnableXsrfProtectionForPublicStore)
+                @Html.ValidationMessageFor(model => model.SecuritySettings.EnableXsrfProtectionForPublicStore)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.SecuritySettings.HoneypotEnabled):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.SecuritySettings.HoneypotEnabled)
+                @Html.ValidationMessageFor(model => model.SecuritySettings.HoneypotEnabled)
             </td>
         </tr>
         <tr>
@@ -559,6 +604,16 @@
             <td class="adminData" id="pdf-logo-picture">
                 @Html.EditorFor(model => model.PdfSettings.LogoPictureId)
                 @Html.ValidationMessageFor(model => model.PdfSettings.LogoPictureId)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.OverrideStoreCheckboxFor(model => model.PdfSettings.DisablePdfInvoicesForPendingOrders_OverrideForStore, model => model.PdfSettings.DisablePdfInvoicesForPendingOrders, Model.ActiveStoreScopeConfiguration)
+                @Html.NopLabelFor(model => model.PdfSettings.DisablePdfInvoicesForPendingOrders):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.PdfSettings.DisablePdfInvoicesForPendingOrders)
+                @Html.ValidationMessageFor(model => model.PdfSettings.DisablePdfInvoicesForPendingOrders)
             </td>
         </tr>
         <tr>

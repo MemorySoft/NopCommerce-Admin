@@ -1,7 +1,6 @@
 ﻿@model ProductModel
 
 @using Nop.Core.Domain.Catalog
-@using Nop.Services.Catalog
 @if (Model.Id > 0)
 {
     if (Model.AvailableProductAttributes.Count > 0)
@@ -57,22 +56,26 @@ else
                         read: {
                             url: "@Html.Raw(Url.Action("ProductAttributeMappingList", "Product", new { productId = Model.Id }))",
                             type: "POST",
-                            dataType: "json"
+                            dataType: "json",
+                            data: addAntiForgeryToken
                         },
                         create: {
                             url: "@Html.Raw(Url.Action("ProductAttributeMappingInsert", "Product", new { productId = Model.Id }))",
                             type: "POST",
-                            dataType: "json"
+                            dataType: "json",
+                            data: addAntiForgeryToken
                         },
                         update: {
                             url: "@Html.Raw(Url.Action("ProductAttributeMappingUpdate", "Product"))",
                             type: "POST",
-                            dataType: "json"
+                            dataType: "json",
+                            data: addAntiForgeryToken
                         },
                         destroy: {
                             url: "@Html.Raw(Url.Action("ProductAttributeMappingDelete", "Product"))",
                             type: "POST",
-                            dataType: "json"
+                            dataType: "json",
+                            data: addAntiForgeryToken
                         }
                     },
                     schema: {
@@ -90,8 +93,8 @@ else
                                 AttributeControlTypeId: { editable: true, type: "number" },
                                 //ProductId: { editable: false, type: "number" },
                                 DisplayOrder: { editable: true, type: "number" },
-                                ViewEditValuesUrl: { editable: false, type: "string" },
-                                ViewEditValuesText: { editable: false, type: "string" },
+                                ShouldHaveValues: { editable: false, type: "boolean" },
+                                TotalValues: { editable: false, type: "number" },
                                 ValidationRulesAllowed: { editable: false, type: "boolean" },
                                 Id: { editable: false, type: "number" }
                             }
@@ -170,10 +173,10 @@ else
                         //integer format
                         format: "{0:0}"
                     }, {
-                        field: "ViewEditValuesUrl",
+                        field: "ShouldHaveValues",
                         title: "@T("Admin.Catalog.Products.ProductAttributes.Attributes.Values")",
                         width: 150,
-                        template: "# if(ViewEditValuesUrl !== null) {# <a href='#=ViewEditValuesUrl#\'>#:ViewEditValuesText#</a> #}  #"
+                        template: '# if(ShouldHaveValues) {# <a href="@Url.Content("~/Admin/Product/EditAttributeValues/")?productAttributeMappingId=#=Id#">@T("Admin.Catalog.Products.ProductAttributes.Attributes.Values.ViewLink")</a><br />@T("Admin.Catalog.Products.ProductAttributes.Attributes.Values.TotalValues") #=TotalValues# #}  #'
                     },
                     {
                         field: "ValidationRulesAllowed",
@@ -288,17 +291,20 @@ else
                             read: {
                                 url: "@Html.Raw(Url.Action("ProductAttributeCombinationList", "Product", new { productId = Model.Id }))",
                                 type: "POST",
-                                dataType: "json"
+                                dataType: "json",
+                                data: addAntiForgeryToken
                             },
                             update: {
                                 url: "@Html.Raw(Url.Action("ProductAttributeCombinationUpdate", "Product"))",
                                 type: "POST",
-                                dataType: "json"
+                                dataType: "json",
+                                data: addAntiForgeryToken
                             },
                             destroy: {
                                 url: "@Html.Raw(Url.Action("ProductAttributeCombinationDelete", "Product"))",
                                 type: "POST",
-                                dataType: "json"
+                                dataType: "json",
+                                data: addAntiForgeryToken
                             }
                         },
                         schema: {
@@ -436,10 +442,16 @@ else
                 //generate combinations
                 $('#btnGenerateAllCombinations').click(function () {
                     if (confirm('@T("Admin.Common.AreYouSure")')) {
+                        
+                        var postData = {
+                        };
+                        addAntiForgeryToken(postData);
+
                         $.ajax({
                             cache: false,
                             type: 'POST',
                             url: '@Url.Action("GenerateAllAttributeCombinations", "Product", new { productId = Model.Id })',
+                            data: postData,
                             dataType: 'json',
                             success: function(data) {
                                 //refresh grid

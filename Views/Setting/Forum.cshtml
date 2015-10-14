@@ -5,6 +5,7 @@
 }
 @using (Html.BeginForm())
 {
+    @Html.AntiForgeryToken()
     <div class="section-header">
         <div class="title">
             <img src="@Url.Content("~/Administration/Content/images/ico-configuration.png")" alt="" />
@@ -125,6 +126,16 @@
             <td class="adminData">
                 @Html.EditorFor(model => model.SearchResultsPageSize)
                 @Html.ValidationMessageFor(model => model.SearchResultsPageSize)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.OverrideStoreCheckboxFor(model => model.ActiveDiscussionsPageSize_OverrideForStore, model => model.ActiveDiscussionsPageSize, Model.ActiveStoreScopeConfiguration)
+                @Html.NopLabelFor(model => model.ActiveDiscussionsPageSize):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.ActiveDiscussionsPageSize)
+                @Html.ValidationMessageFor(model => model.ActiveDiscussionsPageSize)
             </td>
         </tr>
         <tr>

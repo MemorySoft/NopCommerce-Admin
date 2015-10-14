@@ -348,17 +348,20 @@
                                             read: {
                                                 url: "@Html.Raw(Url.Action("ProductList", "Category", new { categoryId = Model.Id }))",
                                                 type: "POST",
-                                                dataType: "json"
+                                                dataType: "json",
+                                                data: addAntiForgeryToken
                                             },
                                             update: {
                                                 url:"@Html.Raw(Url.Action("ProductUpdate", "Category"))",
                                                 type: "POST",
-                                                dataType: "json"
+                                                dataType: "json",
+                                                data: addAntiForgeryToken
                                             },
                                             destroy: {
                                                 url: "@Html.Raw(Url.Action("ProductDelete", "Category"))",
                                                 type: "POST",
-                                                dataType: "json"
+                                                dataType: "json",
+                                                data: addAntiForgeryToken
                                             }
                                         },
                                         schema: {
@@ -520,6 +523,7 @@
             <td class="adminData">
                 @if (Model.AvailableCustomerRoles != null && Model.AvailableCustomerRoles.Count > 0)
                 {
+                    @Html.Action("AclDisabledWarning", "Common")
                     foreach (var customerRole in Model.AvailableCustomerRoles)
                     {
                     <div>
@@ -530,7 +534,8 @@
                 else
                 {
                     <div>No customer roles defined</div>
-                }</td>
+                }
+            </td>
         </tr>
     </table>
 }
@@ -573,6 +578,7 @@
             <td class="adminData">
                 @if (Model.AvailableStores != null && Model.AvailableStores.Count > 0)
                 {
+                    @Html.Action("MultistoreDisabledWarning", "Common")
                     foreach (var store in Model.AvailableStores)
                     {
                     <div>
@@ -583,7 +589,8 @@
                 else
                 {
                     <div>No stores defined</div>
-                }</td>
+                }
+            </td>
         </tr>
     </table>
 }
